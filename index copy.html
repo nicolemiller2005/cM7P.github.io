@@ -1,216 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
-    <title>Mobile Chat App</title>
-    <style>
-        /* Basic reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Fullscreen and flexible layout for mobile */
-        html, body {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Chat container */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: #f4f4f9;
-            padding: 10px;
-            overflow: hidden;
-        }
-
-        /* Chat display area */
-        .messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 10px;
-            background: #ffffff;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .message {
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            border-radius: 10px;
-            max-width: 70%;
-        }
-
-        .message.user {
-            background-color: #d1e7dd;
-            align-self: flex-end;
-        }
-
-        .message.other {
-            background-color: #e2e3e5;
-            align-self: flex-start;
-        }
-
-        /* Typing indicator */
-        .typing {
-            font-style: italic;
-            color: #888;
-            margin-bottom: 10px;
-            align-self: flex-start;
-        }
-
-        /* Input area */
-        .input-container {
-            display: flex;
-            align-items: center;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            font-size: 16px; /* Set font size to 16px to prevent zoom on mobile */
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button {
-            margin-left: 10px;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Editor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+      overflow: hidden;
+    }
+    .toolbar {
+      background: #217346;
+      color: white;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .toolbar button {
+      background: transparent;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      margin-right: 8px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    .toolbar button:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .slide-container {
+      display: flex;
+      height: calc(100vh - 50px);
+    }
+    .slide-list {
+      width: 200px;
+      background: #f9f9f9;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    .slide-thumbnail {
+      width: 160px;
+      height: 90px;
+      background: white;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .slide-thumbnail img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .slide-thumbnail.active {
+      border: 2px solid #217346;
+    }
+    .slide-editor {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      position: relative;
+    }
+    .slide {
+      width: 960px;
+      height: 540px;
+      background: white;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .draggable {
+      position: absolute;
+      background: white;
+      border: 1px solid #ddd;
+      padding: 5px;
+      min-width: 50px;
+      min-height: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .text-box, .code-box {
+      width: 100%;
+      height: 100%;
+      border: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 16px;
+    }
+    .delete-button {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #d9534f;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .draggable:hover .delete-button {
+      display: flex;
+    }
+    .resize-handle {
+      width: 10px;
+      height: 10px;
+      background: #217346;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      cursor: nwse-resize;
+    }
+    .resize-handle:hover {
+      background: #1c5e3a;
+    }
+    .rectangle, .circle {
+      border: 2px solid #217346;
+      background-color: #f9f9f9;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 300px;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #font-select, #color-select, #font-size-select {
+      width: 100%;
+      margin-top: 10px;
+    }
+    .speech-btn {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: none;
+      background-color: #217346;
+      color: white;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+    .speech-btn:hover {
+      background-color: #1c5e3a;
+    }
+  </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="messages" id="messages"></div>
-        <div class="input-container">
-            <input type="text" id="messageInput" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
-        </div>
+  <div class="toolbar">
+    <button onclick="addElement('text')">Add Text</button>
+    <button onclick="addElement('image')">Add Image</button>
+    <button onclick="addShape('rectangle')">Add Rectangle</button>
+    <button onclick="addShape('circle')">Add Circle</button>
+    <button onclick="addSlide()">New Slide</button>
+    <button onclick="exportPDF()">Export to PDF</button>
+    <button onclick="importPDF()">Import PDF</button>
+    <button onclick="toggleFontPicker()">Font</button>
+    <button onclick="toggleColorPicker()">Color</button>
+    <input type="file" id="image-upload" style="display:none" onchange="handleImageUpload(event)">
+  </div>
+
+  <div class="slide-container">
+    <div class="slide-list" id="slide-list">
+      <!-- Thumbnails will be added dynamically -->
     </div>
+    <div class="slide-editor" id="slide-editor">
+      <!-- Slides will be added dynamically -->
+    </div>
+  </div>
 
-    <script>
-        // Function to send a message
-        function sendMessage() {
-            const messageInput = document.getElementById("messageInput");
-            const messageText = messageInput.value.trim().toLowerCase();
+  <!-- Font Picker Modal -->
+  <div id="font-picker" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="toggleFontPicker()">&times;</span>
+      <h2>Select Font</h2>
+      <select id="font-select" onchange="changeFont()">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+      <h2>Font Size</h2>
+      <input type="number" id="font-size-select" value="16" min="8" max="72" onchange="changeFontSize()">
+      <button class="speech-btn" onclick="startSpeechRecognition()">Speak</button>
+    </div>
+  </div>
 
-            if (messageText !== "") {
-                // Create a new message element
-                const messageElement = document.createElement("div");
-                messageElement.classList.add("message", "user");
-                messageElement.textContent = messageInput.value.trim(); // Show original case
+  <!-- Color Picker Modal -->
+  <div id="color-picker" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="toggleColorPicker()">&times;</span>
+      <h2>Select Color</h2>
+      <input type="color" id="color-select" onchange="changeColor()">
+    </div>
+  </div>
 
-                // Add the message to the message container
-                const messagesContainer = document.getElementById("messages");
-                messagesContainer.appendChild(messageElement);
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.worker.min.js"></script>
+  <script>
+    let currentSlide = -1;
+    let selectedTextBox = null;
+    const slideEditor = document.getElementById('slide-editor');
+    const slideList = document.getElementById('slide-list');
 
-                // Scroll to the bottom to show the new message
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    function addElement(type) {
+      if (currentSlide === -1) return; // No slide selected
 
-                // Clear the input field
-                messageInput.value = "";
+      if (type === 'image') {
+        document.getElementById('image-upload').click();
+        return; // Exit the function to wait for image selection
+      }
 
-                // Check for specific responses
-                if (messageText === "hello") {
-                    showTypingIndicator(["hello"]);
-                } else if (messageText === "where are you" || messageText === "ware are you") {
-                    showTypingIndicator(["Going to get a coffee if you want to come"]);
-                } else if (messageText === "why did you not come") {
-                    showTypingIndicator(["My bad, I forgot"]);
-                } else if (messageText === "oh okay") {
-                    showTypingIndicator(["I need to say something to you"]);
-                } else if (messageText === "wot is it") {
-                    showTypingIndicator([
-                        "I never liked you.",
-                        "I told you I was your mate because I felt bad, but I hate you.",
-                        "Everywhere we go, I have to think about if you’re okay, if you’ll freak out.",
-                        "And honestly, I'm happy when you get picked on."
-                    ], true);
-                } else {
-                    // Default response for other messages
-                    showTypingIndicator(["This is an automated response."]);
-                }
+      const slide = document.getElementById(`slide${currentSlide}`);
+      const element = document.createElement('div');
+      element.className = 'draggable';
+      element.style.cssText = 'left: 50px; top: 50px; width: 200px; height: 100px;';
+
+      if (type === 'text') {
+        const textBox = document.createElement('textarea');
+        textBox.placeholder = 'Type here...';
+        textBox.className = 'text-box';
+        textBox.addEventListener('mousedown', (e) => { e.stopPropagation(); });
+        textBox.onclick = () => {
+          selectedTextBox = textBox;
+        };
+        element.appendChild(textBox);
+      }
+
+      element.appendChild(createDeleteButton());
+      const resizeHandle = document.createElement('div');
+      resizeHandle.className = 'resize-handle';
+      element.appendChild(resizeHandle);
+
+      slide.appendChild(element);
+      makeDraggable(element);
+      updateSlidePreview(currentSlide); // Update slide thumbnail
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const slide = document.getElementById(`slide${currentSlide}`);
+        const element = document.createElement('div');
+        element.className = 'draggable';
+        element.style.cssText = 'left: 50px; top: 50px; width: 200px; height: 100px;';
+
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.alt = 'Image';
+        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+        element.appendChild(img);
+
+        element.appendChild(createDeleteButton());
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'resize-handle';
+        element.appendChild(resizeHandle);
+
+        slide.appendChild(element);
+        makeDraggable(element);
+        updateSlidePreview(currentSlide); // Update slide thumbnail
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function makeDraggable(element) {
+      let offsetX, offsetY, isDragging = false;
+      let isResizing = false;
+      let startWidth, startHeight, startX, startY;
+
+      element.onmousedown = (e) => {
+        e.preventDefault();
+        if (!isResizing) {
+          isDragging = true;
+          offsetX = e.clientX - parseInt(window.getComputedStyle(element).left, 10);
+          offsetY = e.clientY - parseInt(window.getComputedStyle(element).top, 10);
+
+          document.onmousemove = (e) => {
+            if (isDragging) {
+              element.style.left = `${e.clientX - offsetX}px`;
+              element.style.top = `${e.clientY - offsetY}px`;
+            } else if (isResizing) {
+              const rect = element.getBoundingClientRect();
+              element.style.width = `${e.clientX - rect.left}px`;
+              element.style.height = `${e.clientY - rect.top}px`;
             }
+          };
+
+          document.onmouseup = () => {
+            isDragging = false;
+            isResizing = false;
+            document.onmousemove = null;
+            document.onmouseup = null;
+          };
         }
+      };
 
-        // Function to show "typing..." indicator and then display multiple messages in sequence
-        function showTypingIndicator(responseTexts, isSequence = false) {
-            const messagesContainer = document.getElementById("messages");
+      const resizeHandle = element.querySelector('.resize-handle');
+      resizeHandle.onmousedown = (e) => {
+        e.preventDefault();
+        isResizing = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = parseInt(window.getComputedStyle(element).width, 10);
+        startHeight = parseInt(window.getComputedStyle(element).height, 10);
 
-            // Create a typing indicator element
-            const typingIndicator = document.createElement("div");
-            typingIndicator.classList.add("typing");
-            typingIndicator.textContent = "Typing...";
-            messagesContainer.appendChild(typingIndicator);
+        document.onmousemove = (e) => {
+          if (isResizing) {
+            const newWidth = startWidth + (e.clientX - startX);
+            const newHeight = startHeight + (e.clientY - startY);
+            element.style.width = `${Math.max(newWidth, 50)}px`; // Minimum width of 50px
+            element.style.height = `${Math.max(newHeight, 30)}px`; // Minimum height of 30px
+          }
+        };
 
-            // Scroll to the bottom to show typing indicator
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        document.onmouseup = () => {
+          isResizing = false;
+          document.onmousemove = null;
+          document.onmouseup = null;
+        };
+      };
+    }
 
-            // Display each message with delay if isSequence is true
-            if (isSequence) {
-                let delay = 1000; // Initial delay for typing indicator
+    function createDeleteButton() {
+      const deleteButton = document.createElement('button');
+      deleteButton.className = 'delete-button';
+      deleteButton.innerHTML = '&times;';
+      deleteButton.onclick = (e) => {
+        e.stopPropagation();
+        const element = deleteButton.parentElement;
+        element.parentElement.removeChild(element);
+        updateSlidePreview(currentSlide); // Update slide thumbnail
+      };
+      return deleteButton;
+    }
 
-                responseTexts.forEach((text, index) => {
-                    setTimeout(() => {
-                        messagesContainer.removeChild(typingIndicator);
+    function addShape(shape) {
+      if (currentSlide === -1) return; // No slide selected
 
-                        // Create a new message element for each part of the response
-                        const messageElement = document.createElement("div");
-                        messageElement.classList.add("message", "other");
-                        messageElement.textContent = text;
+      const slide = document.getElementById(`slide${currentSlide}`);
+      const element = document.createElement('div');
+      element.className = `draggable ${shape}`;
+      element.style.cssText = 'left: 50px; top: 50px; width: 100px; height: 100px;';
 
-                        messagesContainer.appendChild(messageElement);
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      element.appendChild(createDeleteButton());
+      const resizeHandle = document.createElement('div');
+      resizeHandle.className = 'resize-handle';
+      element.appendChild(resizeHandle);
 
-                        // Show typing indicator between each message if more responses remain
-                        if (index < responseTexts.length - 1) {
-                            messagesContainer.appendChild(typingIndicator);
-                        }
-                    }, delay);
+      slide.appendChild(element);
+      makeDraggable(element);
+      updateSlidePreview(currentSlide); // Update slide thumbnail
+    }
 
-                    // Increase delay for each subsequent message
-                    delay += 1500;
-                });
-            } else {
-                // For a single response, delay and then display the response
-                setTimeout(() => {
-                    messagesContainer.removeChild(typingIndicator);
+    function addSlide() {
+      const slideCount = document.querySelectorAll('.slide').length;
+      currentSlide = slideCount;
 
-                    const messageElement = document.createElement("div");
-                    messageElement.classList.add("message", "other");
-                    messageElement.textContent = responseTexts[0];
-                    
-                    messagesContainer.appendChild(messageElement);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 1000);
-            }
-        }
+      const slide = document.createElement('div');
+      slide.className = 'slide';
+      slide.id = `slide${slideCount}`;
+      slide.onclick = () => selectSlide(slideCount);
+      slideEditor.appendChild(slide);
 
-        // Allow pressing Enter to send a message
-        document.getElementById("messageInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                sendMessage();
-            }
+      const thumbnail = document.createElement('div');
+      thumbnail.className = 'slide-thumbnail';
+      thumbnail.id = `thumbnail${slideCount}`;
+      thumbnail.onclick = () => selectSlide(slideCount);
+      slideList.appendChild(thumbnail);
+
+      selectSlide(slideCount);
+    }
+
+    function selectSlide(slideIndex) {
+      currentSlide = slideIndex;
+
+      document.querySelectorAll('.slide').forEach((slide, index) => {
+        slide.style.display = index === slideIndex ? 'block' : 'none';
+      });
+
+      document.querySelectorAll('.slide-thumbnail').forEach((thumbnail, index) => {
+        thumbnail.classList.toggle('active', index === slideIndex);
+      });
+
+      updateSlidePreview(slideIndex); // Update slide thumbnail
+    }
+
+    function updateSlidePreview(slideIndex) {
+      const slide = document.getElementById(`slide${slideIndex}`);
+      const thumbnail = document.getElementById(`thumbnail${slideIndex}`);
+      if (!slide || !thumbnail) return;
+
+      html2canvas(slide).then(canvas => {
+        thumbnail.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL('image/png');
+        thumbnail.appendChild(img);
+      });
+    }
+
+    function exportPDF() {
+      const slides = document.querySelectorAll('.slide');
+      const pdf = new jsPDF('landscape');
+      slides.forEach((slide, index) => {
+        html2canvas(slide).then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
+          pdf.addImage(imgData, 'PNG', 0, 0, 297, 210); // A4 size: 297mm x 210mm
+          if (index < slides.length - 1) pdf.addPage();
         });
-    </script>
+      });
+      pdf.save('presentation.pdf');
+    }
+
+    function importPDF() {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'application/pdf';
+      fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const fileReader = new FileReader();
+          fileReader.onload = (e) => {
+            const typedarray = new Uint8Array(e.target.result);
+            pdfjsLib.getDocument(typedarray).promise.then((pdf) => {
+              for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                pdf.getPage(pageNum).then((page) => {
+                  const viewport = page.getViewport({ scale: 2.0 });
+                  const canvas = document.createElement('canvas');
+                  const context = canvas.getContext('2d');
+                  canvas.height = viewport.height;
+                  canvas.width = viewport.width;
+
+                  const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                  };
+                  page.render(renderContext).promise.then(() => {
+                    const img = canvas.toDataURL();
+                    addSlide();
+                    const slide = document.getElementById(`slide${currentSlide}`);
+                    slide.style.backgroundImage = `url(${img})`;
+                    slide.style.backgroundSize = 'contain';
+                    slide.style.backgroundRepeat = 'no-repeat';
+                    slide.style.backgroundPosition = 'center';
+                    updateSlidePreview(currentSlide); // Update slide thumbnail
+                  });
+                });
+              }
+            });
+          };
+          fileReader.readAsArrayBuffer(file);
+        }
+      };
+      fileInput.click();
+    }
+
+    function toggleFontPicker() {
+      const modal = document.getElementById('font-picker');
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function toggleColorPicker() {
+      const modal = document.getElementById('color-picker');
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function changeFont() {
+      if (selectedTextBox) {
+        const font = document.getElementById('font-select').value;
+        selectedTextBox.style.fontFamily = font;
+      }
+    }
+
+    function changeFontSize() {
+      if (selectedTextBox) {
+        const fontSize = document.getElementById('font-size-select').value;
+        selectedTextBox.style.fontSize = `${fontSize}px`;
+      }
+    }
+
+    function changeColor() {
+      if (selectedTextBox) {
+        const color = document.getElementById('color-select').value;
+        selectedTextBox.style.color = color;
+      }
+    }
+
+    function startSpeechRecognition() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('Speech recognition not supported');
+        return;
+      }
+
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (selectedTextBox) {
+          selectedTextBox.value += transcript;
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error', event);
+      };
+
+      recognition.onend = () => {
+        console.log('Speech recognition ended');
+      };
+
+      recognition.start();
+    }
+
+    // Initialize first slide
+    addSlide();
+  </script>
 </body>
 </html>
