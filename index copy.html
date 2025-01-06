@@ -1,563 +1,397 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slide Editor</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f0f0f0;
-      overflow: hidden;
-    }
-    .toolbar {
-      background: #217346;
-      color: white;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .toolbar button {
-      background: transparent;
-      border: none;
-      color: white;
-      padding: 8px 12px;
-      margin-right: 8px;
-      cursor: pointer;
-      border-radius: 3px;
-      font-size: 14px;
-      transition: background-color 0.3s;
-    }
-    .toolbar button:hover {
-      background: rgba(255,255,255,0.2);
-    }
-    .slide-container {
-      display: flex;
-      height: calc(100vh - 50px);
-    }
-    .slide-list {
-      width: 200px;
-      background: #f9f9f9;
-      padding: 20px;
-      overflow-y: auto;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
-    .slide-thumbnail {
-      width: 160px;
-      height: 90px;
-      background: white;
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-    .slide-thumbnail img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-    .slide-thumbnail.active {
-      border: 2px solid #217346;
-    }
-    .slide-editor {
-      flex-grow: 1;
-      padding: 20px;
-      overflow-y: auto;
-      position: relative;
-    }
-    .slide {
-      width: 960px;
-      height: 540px;
-      background: white;
-      margin: 0 auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      position: relative;
-    }
-    .draggable {
-      position: absolute;
-      background: white;
-      border: 1px solid #ddd;
-      padding: 5px;
-      min-width: 50px;
-      min-height: 30px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .text-box, .code-box {
-      width: 100%;
-      height: 100%;
-      border: none;
-      resize: none;
-      font-family: inherit;
-      font-size: 16px;
-    }
-    .delete-button {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background: #d9534f;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .draggable:hover .delete-button {
-      display: flex;
-    }
-    .resize-handle {
-      width: 10px;
-      height: 10px;
-      background: #217346;
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      cursor: nwse-resize;
-    }
-    .resize-handle:hover {
-      background: #1c5e3a;
-    }
-    .rectangle, .circle {
-      border: 2px solid #217346;
-      background-color: #f9f9f9;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgb(0,0,0);
-      background-color: rgba(0,0,0,0.4);
-    }
-    .modal-content {
-      background-color: #fefefe;
-      margin: 15% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 300px;
-    }
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    #font-select, #color-select, #font-size-select {
-      width: 100%;
-      margin-top: 10px;
-    }
-    .speech-btn {
-      margin-top: 10px;
-      padding: 8px 12px;
-      border: none;
-      background-color: #217346;
-      color: white;
-      cursor: pointer;
-      border-radius: 3px;
-      font-size: 14px;
-    }
-    .speech-btn:hover {
-      background-color: #1c5e3a;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photoshop Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #2a2a2a;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            background: #1a1a1a;
+            padding: 10px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 50px);
+        }
+
+        .toolbar {
+            width: 60px;
+            background: #333;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            background: #444;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .tool-btn.active {
+            background: #666;
+        }
+
+        .workspace {
+            flex: 1;
+            background: #2a2a2a;
+            position: relative;
+            overflow: auto;
+        }
+
+        .canvas-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        #canvas {
+            display: block;
+        }
+
+        .text-input {
+            position: absolute;
+            background: transparent;
+            border: none;
+            color: black;
+            outline: none;
+            padding: 0;
+            margin: 0;
+            display: none;
+            font-family: Arial;
+        }
+
+        .layers-panel {
+            width: 250px;
+            background: #333;
+            padding: 10px;
+        }
+
+        .layer-item {
+            padding: 10px;
+            background: #444;
+            margin: 5px 0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .layer-item.active {
+            background: #555;
+        }
+
+        .properties-panel {
+            width: 250px;
+            background: #333;
+            padding: 10px;
+        }
+
+        .text-properties {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .text-properties select, .text-properties input {
+            width: 100%;
+            margin: 5px 0;
+            padding: 5px;
+            background: #444;
+            border: none;
+            color: white;
+        }
+
+        .menu-btn {
+            padding: 5px 10px;
+            background: #444;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="toolbar">
-    <button onclick="addElement('text')">Add Text</button>
-    <button onclick="addElement('image')">Add Image</button>
-    <button onclick="addShape('rectangle')">Add Rectangle</button>
-    <button onclick="addShape('circle')">Add Circle</button>
-    <button onclick="addSlide()">New Slide</button>
-    <button onclick="exportPDF()">Export to PDF</button>
-    <button onclick="importPDF()">Import PDF</button>
-    <button onclick="toggleFontPicker()">Font</button>
-    <button onclick="toggleColorPicker()">Color</button>
-    <input type="file" id="image-upload" style="display:none" onchange="handleImageUpload(event)">
-  </div>
-
-  <div class="slide-container">
-    <div class="slide-list" id="slide-list">
-      <!-- Thumbnails will be added dynamically -->
+    <div class="top-bar">
+        <button class="menu-btn" onclick="document.getElementById('fileInput').click()">Open</button>
+        <button class="menu-btn" onclick="saveCanvas()">Save</button>
+        <button class="menu-btn" onclick="createNewLayer()">New Layer</button>
+        <input type="file" id="fileInput" accept="image/*" onchange="loadImage(event)">
     </div>
-    <div class="slide-editor" id="slide-editor">
-      <!-- Slides will be added dynamically -->
+
+    <div class="main-container">
+        <div class="toolbar">
+            <button class="tool-btn" onclick="setTool('brush')" title="Brush">🖌️</button>
+            <button class="tool-btn" onclick="setTool('eraser')" title="Eraser">⌫</button>
+            <button class="tool-btn" onclick="setTool('text')" title="Text">T</button>
+            <button class="tool-btn" onclick="setTool('move')" title="Move">↔️</button>
+        </div>
+
+        <div class="workspace">
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+                <input type="text" class="text-input" id="textInput">
+            </div>
+        </div>
+
+        <div class="layers-panel">
+            <h3>Layers</h3>
+            <div id="layers-list"></div>
+        </div>
+
+        <div class="properties-panel">
+            <h3>Properties</h3>
+            
+            <div class="brush-properties">
+                <label>Brush Size</label>
+                <input type="range" min="1" max="50" value="10" onchange="updateBrushSize(this.value)">
+            </div>
+
+            <div class="text-properties">
+                <select id="fontFamily" onchange="updateTextProperty('fontFamily')">
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+                <input type="number" id="fontSize" value="20" min="8" max="200" onchange="updateTextProperty('fontSize')">
+                <input type="color" id="textColor" value="#000000" onchange="updateTextProperty('color')">
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Font Picker Modal -->
-  <div id="font-picker" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="toggleFontPicker()">&times;</span>
-      <h2>Select Font</h2>
-      <select id="font-select" onchange="changeFont()">
-        <option value="Arial">Arial</option>
-        <option value="Courier New">Courier New</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Verdana">Verdana</option>
-      </select>
-      <h2>Font Size</h2>
-      <input type="number" id="font-size-select" value="16" min="8" max="72" onchange="changeFontSize()">
-      <button class="speech-btn" onclick="startSpeechRecognition()">Speak</button>
-    </div>
-  </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const textInput = document.getElementById('textInput');
+        let layers = [];
+        let currentLayer = null;
+        let currentTool = 'brush';
+        let isDrawing = false;
+        let brushSize = 10;
+        let lastX = 0;
+        let lastY = 0;
 
-  <!-- Color Picker Modal -->
-  <div id="color-picker" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="toggleColorPicker()">&times;</span>
-      <h2>Select Color</h2>
-      <input type="color" id="color-select" onchange="changeColor()">
-    </div>
-  </div>
+        // Initialize canvas
+        canvas.width = 800;
+        canvas.height = 600;
+        createNewLayer('Background');
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.worker.min.js"></script>
-  <script>
-    let currentSlide = -1;
-    let selectedTextBox = null;
-    const slideEditor = document.getElementById('slide-editor');
-    const slideList = document.getElementById('slide-list');
-
-    function addElement(type) {
-      if (currentSlide === -1) return; // No slide selected
-
-      if (type === 'image') {
-        document.getElementById('image-upload').click();
-        return; // Exit the function to wait for image selection
-      }
-
-      const slide = document.getElementById(`slide${currentSlide}`);
-      const element = document.createElement('div');
-      element.className = 'draggable';
-      element.style.cssText = 'left: 50px; top: 50px; width: 200px; height: 100px;';
-
-      if (type === 'text') {
-        const textBox = document.createElement('textarea');
-        textBox.placeholder = 'Type here...';
-        textBox.className = 'text-box';
-        textBox.addEventListener('mousedown', (e) => { e.stopPropagation(); });
-        textBox.onclick = () => {
-          selectedTextBox = textBox;
+        // Text properties
+        let textProps = {
+            fontFamily: 'Arial',
+            fontSize: '20px',
+            color: '#000000'
         };
-        element.appendChild(textBox);
-      }
 
-      element.appendChild(createDeleteButton());
-      const resizeHandle = document.createElement('div');
-      resizeHandle.className = 'resize-handle';
-      element.appendChild(resizeHandle);
+        function createNewLayer(name = null) {
+            const layerCanvas = document.createElement('canvas');
+            layerCanvas.width = canvas.width;
+            layerCanvas.height = canvas.height;
+            
+            const layer = {
+                canvas: layerCanvas,
+                ctx: layerCanvas.getContext('2d'),
+                name: name || `Layer ${layers.length + 1}`,
+                visible: true
+            };
 
-      slide.appendChild(element);
-      makeDraggable(element);
-      updateSlidePreview(currentSlide); // Update slide thumbnail
-    }
-
-    function handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const slide = document.getElementById(`slide${currentSlide}`);
-        const element = document.createElement('div');
-        element.className = 'draggable';
-        element.style.cssText = 'left: 50px; top: 50px; width: 200px; height: 100px;';
-
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.alt = 'Image';
-        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-        element.appendChild(img);
-
-        element.appendChild(createDeleteButton());
-        const resizeHandle = document.createElement('div');
-        resizeHandle.className = 'resize-handle';
-        element.appendChild(resizeHandle);
-
-        slide.appendChild(element);
-        makeDraggable(element);
-        updateSlidePreview(currentSlide); // Update slide thumbnail
-      };
-
-      reader.readAsDataURL(file);
-    }
-
-    function makeDraggable(element) {
-      let offsetX, offsetY, isDragging = false;
-      let isResizing = false;
-      let startWidth, startHeight, startX, startY;
-
-      element.onmousedown = (e) => {
-        e.preventDefault();
-        if (!isResizing) {
-          isDragging = true;
-          offsetX = e.clientX - parseInt(window.getComputedStyle(element).left, 10);
-          offsetY = e.clientY - parseInt(window.getComputedStyle(element).top, 10);
-
-          document.onmousemove = (e) => {
-            if (isDragging) {
-              element.style.left = `${e.clientX - offsetX}px`;
-              element.style.top = `${e.clientY - offsetY}px`;
-            } else if (isResizing) {
-              const rect = element.getBoundingClientRect();
-              element.style.width = `${e.clientX - rect.left}px`;
-              element.style.height = `${e.clientY - rect.top}px`;
-            }
-          };
-
-          document.onmouseup = () => {
-            isDragging = false;
-            isResizing = false;
-            document.onmousemove = null;
-            document.onmouseup = null;
-          };
+            layers.push(layer);
+            currentLayer = layer;
+            updateLayersList();
+            redrawCanvas();
+            return layer;
         }
-      };
 
-      const resizeHandle = element.querySelector('.resize-handle');
-      resizeHandle.onmousedown = (e) => {
-        e.preventDefault();
-        isResizing = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        startWidth = parseInt(window.getComputedStyle(element).width, 10);
-        startHeight = parseInt(window.getComputedStyle(element).height, 10);
+        function updateLayersList() {
+            const layersList = document.getElementById('layers-list');
+            layersList.innerHTML = '';
 
-        document.onmousemove = (e) => {
-          if (isResizing) {
-            const newWidth = startWidth + (e.clientX - startX);
-            const newHeight = startHeight + (e.clientY - startY);
-            element.style.width = `${Math.max(newWidth, 50)}px`; // Minimum width of 50px
-            element.style.height = `${Math.max(newHeight, 30)}px`; // Minimum height of 30px
-          }
-        };
-
-        document.onmouseup = () => {
-          isResizing = false;
-          document.onmousemove = null;
-          document.onmouseup = null;
-        };
-      };
-    }
-
-    function createDeleteButton() {
-      const deleteButton = document.createElement('button');
-      deleteButton.className = 'delete-button';
-      deleteButton.innerHTML = '&times;';
-      deleteButton.onclick = (e) => {
-        e.stopPropagation();
-        const element = deleteButton.parentElement;
-        element.parentElement.removeChild(element);
-        updateSlidePreview(currentSlide); // Update slide thumbnail
-      };
-      return deleteButton;
-    }
-
-    function addShape(shape) {
-      if (currentSlide === -1) return; // No slide selected
-
-      const slide = document.getElementById(`slide${currentSlide}`);
-      const element = document.createElement('div');
-      element.className = `draggable ${shape}`;
-      element.style.cssText = 'left: 50px; top: 50px; width: 100px; height: 100px;';
-
-      element.appendChild(createDeleteButton());
-      const resizeHandle = document.createElement('div');
-      resizeHandle.className = 'resize-handle';
-      element.appendChild(resizeHandle);
-
-      slide.appendChild(element);
-      makeDraggable(element);
-      updateSlidePreview(currentSlide); // Update slide thumbnail
-    }
-
-    function addSlide() {
-      const slideCount = document.querySelectorAll('.slide').length;
-      currentSlide = slideCount;
-
-      const slide = document.createElement('div');
-      slide.className = 'slide';
-      slide.id = `slide${slideCount}`;
-      slide.onclick = () => selectSlide(slideCount);
-      slideEditor.appendChild(slide);
-
-      const thumbnail = document.createElement('div');
-      thumbnail.className = 'slide-thumbnail';
-      thumbnail.id = `thumbnail${slideCount}`;
-      thumbnail.onclick = () => selectSlide(slideCount);
-      slideList.appendChild(thumbnail);
-
-      selectSlide(slideCount);
-    }
-
-    function selectSlide(slideIndex) {
-      currentSlide = slideIndex;
-
-      document.querySelectorAll('.slide').forEach((slide, index) => {
-        slide.style.display = index === slideIndex ? 'block' : 'none';
-      });
-
-      document.querySelectorAll('.slide-thumbnail').forEach((thumbnail, index) => {
-        thumbnail.classList.toggle('active', index === slideIndex);
-      });
-
-      updateSlidePreview(slideIndex); // Update slide thumbnail
-    }
-
-    function updateSlidePreview(slideIndex) {
-      const slide = document.getElementById(`slide${slideIndex}`);
-      const thumbnail = document.getElementById(`thumbnail${slideIndex}`);
-      if (!slide || !thumbnail) return;
-
-      html2canvas(slide).then(canvas => {
-        thumbnail.innerHTML = '';
-        const img = document.createElement('img');
-        img.src = canvas.toDataURL('image/png');
-        thumbnail.appendChild(img);
-      });
-    }
-
-    function exportPDF() {
-      const slides = document.querySelectorAll('.slide');
-      const pdf = new jsPDF('landscape');
-      slides.forEach((slide, index) => {
-        html2canvas(slide).then(canvas => {
-          const imgData = canvas.toDataURL('image/png');
-          pdf.addImage(imgData, 'PNG', 0, 0, 297, 210); // A4 size: 297mm x 210mm
-          if (index < slides.length - 1) pdf.addPage();
-        });
-      });
-      pdf.save('presentation.pdf');
-    }
-
-    function importPDF() {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'application/pdf';
-      fileInput.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const fileReader = new FileReader();
-          fileReader.onload = (e) => {
-            const typedarray = new Uint8Array(e.target.result);
-            pdfjsLib.getDocument(typedarray).promise.then((pdf) => {
-              for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                pdf.getPage(pageNum).then((page) => {
-                  const viewport = page.getViewport({ scale: 2.0 });
-                  const canvas = document.createElement('canvas');
-                  const context = canvas.getContext('2d');
-                  canvas.height = viewport.height;
-                  canvas.width = viewport.width;
-
-                  const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                  };
-                  page.render(renderContext).promise.then(() => {
-                    const img = canvas.toDataURL();
-                    addSlide();
-                    const slide = document.getElementById(`slide${currentSlide}`);
-                    slide.style.backgroundImage = `url(${img})`;
-                    slide.style.backgroundSize = 'contain';
-                    slide.style.backgroundRepeat = 'no-repeat';
-                    slide.style.backgroundPosition = 'center';
-                    updateSlidePreview(currentSlide); // Update slide thumbnail
-                  });
-                });
-              }
+            layers.slice().reverse().forEach((layer, index) => {
+                const reverseIndex = layers.length - 1 - index;
+                const layerItem = document.createElement('div');
+                layerItem.className = `layer-item ${layer === currentLayer ? 'active' : ''}`;
+                layerItem.innerHTML = `<span>${layer.name}</span>`;
+                layerItem.onclick = () => setCurrentLayer(reverseIndex);
+                layersList.appendChild(layerItem);
             });
-          };
-          fileReader.readAsArrayBuffer(file);
         }
-      };
-      fileInput.click();
-    }
 
-    function toggleFontPicker() {
-      const modal = document.getElementById('font-picker');
-      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function toggleColorPicker() {
-      const modal = document.getElementById('color-picker');
-      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function changeFont() {
-      if (selectedTextBox) {
-        const font = document.getElementById('font-select').value;
-        selectedTextBox.style.fontFamily = font;
-      }
-    }
-
-    function changeFontSize() {
-      if (selectedTextBox) {
-        const fontSize = document.getElementById('font-size-select').value;
-        selectedTextBox.style.fontSize = `${fontSize}px`;
-      }
-    }
-
-    function changeColor() {
-      if (selectedTextBox) {
-        const color = document.getElementById('color-select').value;
-        selectedTextBox.style.color = color;
-      }
-    }
-
-    function startSpeechRecognition() {
-      if (!('webkitSpeechRecognition' in window)) {
-        alert('Speech recognition not supported');
-        return;
-      }
-
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        if (selectedTextBox) {
-          selectedTextBox.value += transcript;
+        function setCurrentLayer(index) {
+            currentLayer = layers[index];
+            updateLayersList();
         }
-      };
 
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error', event);
-      };
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            layers.forEach(layer => {
+                if (layer.visible) {
+                    ctx.drawImage(layer.canvas, 0, 0);
+                }
+            });
+        }
 
-      recognition.onend = () => {
-        console.log('Speech recognition ended');
-      };
+        // Mouse event handlers
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('click', handleCanvasClick);
 
-      recognition.start();
-    }
+        function startDrawing(e) {
+            if (currentTool === 'text') return;
+            isDrawing = true;
+            [lastX, lastY] = getMousePos(canvas, e);
+        }
 
-    // Initialize first slide
-    addSlide();
-  </script>
+        function draw(e) {
+            if (!isDrawing || currentTool === 'text') return;
+
+            const [x, y] = getMousePos(canvas, e);
+
+            if (currentTool === 'brush') {
+                currentLayer.ctx.beginPath();
+                currentLayer.ctx.moveTo(lastX, lastY);
+                currentLayer.ctx.lineTo(x, y);
+                currentLayer.ctx.strokeStyle = 'black';
+                currentLayer.ctx.lineWidth = brushSize;
+                currentLayer.ctx.lineCap = 'round';
+                currentLayer.ctx.stroke();
+            } else if (currentTool === 'eraser') {
+                currentLayer.ctx.clearRect(x - brushSize/2, y - brushSize/2, brushSize, brushSize);
+            }
+
+            [lastX, lastY] = [x, y];
+            redrawCanvas();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function getMousePos(canvas, e) {
+            const rect = canvas.getBoundingClientRect();
+            return [
+                e.clientX - rect.left,
+                e.clientY - rect.top
+            ];
+        }
+
+        function handleCanvasClick(e) {
+            if (currentTool === 'text') {
+                const [x, y] = getMousePos(canvas, e);
+                showTextInput(x, y);
+            }
+        }
+
+        function showTextInput(x, y) {
+            textInput.style.display = 'block';
+            textInput.style.left = x + 'px';
+            textInput.style.top = y + 'px';
+            textInput.style.font = `${textProps.fontSize}px ${textProps.fontFamily}`;
+            textInput.style.color = textProps.color;
+            textInput.focus();
+
+            // Create new layer for text
+            createNewLayer('Text Layer');
+        }
+
+        textInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const text = this.value;
+                if (text) {
+                    currentLayer.ctx.font = `${textProps.fontSize}px ${textProps.fontFamily}`;
+                    currentLayer.ctx.fillStyle = textProps.color;
+                    currentLayer.ctx.fillText(text, parseInt(this.style.left), parseInt(this.style.top));
+                    redrawCanvas();
+                }
+                this.value = '';
+                this.style.display = 'none';
+            }
+        });
+
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show/hide appropriate properties
+            document.querySelector('.text-properties').style.display = 
+                tool === 'text' ? 'block' : 'none';
+            document.querySelector('.brush-properties').style.display = 
+                tool === 'brush' ? 'block' : 'none';
+        }
+
+        function updateTextProperty(property) {
+            const value = document.getElementById(property === 'fontSize' ? 'fontSize' : 
+                                                property === 'fontFamily' ? 'fontFamily' : 
+                                                'textColor').value;
+            textProps[property] = value;
+            if (textInput.style.display === 'block') {
+                textInput.style.font = `${textProps.fontSize}px ${textProps.fontFamily}`;
+                textInput.style.color = textProps.color;
+            }
+        }
+
+        function updateBrushSize(size) {
+            brushSize = size;
+        }
+
+        function loadImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const imageLayer = createNewLayer('Image Layer');
+                        imageLayer.ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        redrawCanvas();
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveCanvas() {
+            const link = document.createElement('a');
+            link.download = 'artwork.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
 </body>
 </html>
